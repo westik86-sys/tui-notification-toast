@@ -182,6 +182,11 @@ struct TopToastModifier: ViewModifier {
             await Task.yield()
             guard !Task.isCancelled else { return }
 
+            withAnimation(.easeOut(duration: TopToastTiming.compactRevealDuration)) {
+                phase = .appearingCompact
+            }
+            guard await TopToastTiming.sleep(TopToastTiming.compactRevealDuration) else { return }
+
             withAnimation(.easeOut(duration: TopToastTiming.textRevealDuration)) {
                 phase = .appearingText
             }
@@ -324,6 +329,7 @@ extension View {
 
 enum TopToastAnimationPhase {
     case appearingStart
+    case appearingCompact
     case appearingText
     case appearingOvershoot
     case visible
@@ -335,6 +341,8 @@ enum TopToastAnimationPhase {
         switch self {
         case .appearingStart:
             return 0
+        case .appearingCompact:
+            return 0.28
         case .appearingText:
             return 0.45
         case .appearingOvershoot, .visible:
@@ -352,10 +360,12 @@ enum TopToastAnimationPhase {
         switch self {
         case .appearingStart:
             return -14
+        case .appearingCompact:
+            return -12
         case .appearingText:
             return -8
         case .appearingOvershoot:
-            return 6
+            return 4
         case .visible:
             return 0
         case .disappearingStart:
@@ -370,7 +380,9 @@ enum TopToastAnimationPhase {
     var blurRadius: CGFloat {
         switch self {
         case .appearingStart:
-            return 3
+            return 5
+        case .appearingCompact:
+            return 4
         case .appearingText:
             return 3
         case .appearingOvershoot, .visible:
@@ -388,7 +400,7 @@ enum TopToastAnimationPhase {
         let width: CGFloat
 
         switch self {
-        case .appearingStart:
+        case .appearingStart, .appearingCompact:
             width = TopToastMetrics.initialRevealWidth
         case .appearingText:
             width = min(finalWidth, TopToastMetrics.textRevealWidth)
@@ -409,10 +421,8 @@ enum TopToastAnimationPhase {
 
     var maskCenterFraction: CGFloat {
         switch self {
-        case .appearingStart:
-            return 0.58
-        case .appearingText:
-            return 0.55
+        case .appearingStart, .appearingCompact, .appearingText:
+            return 0.5
         case .appearingOvershoot, .visible:
             return 0.5
         case .disappearingStart:
@@ -426,7 +436,7 @@ enum TopToastAnimationPhase {
 
     var iconOpacity: Double {
         switch self {
-        case .appearingStart, .appearingText:
+        case .appearingStart, .appearingCompact, .appearingText:
             return 0
         case .appearingOvershoot, .visible:
             return 1
@@ -441,6 +451,8 @@ enum TopToastAnimationPhase {
         switch self {
         case .appearingStart:
             return 0
+        case .appearingCompact:
+            return 0.65
         case .appearingText:
             return 0.85
         case .appearingOvershoot:
@@ -458,7 +470,7 @@ enum TopToastAnimationPhase {
 }
 
 private enum TopToastMetrics {
-    static let height: CGFloat = 48
+    static let height: CGFloat = 32
     static let topSpacing: CGFloat = 10
     static let defaultIconName = "ToastCheckPositive"
     static let leadingPadding: CGFloat = 12
@@ -467,8 +479,8 @@ private enum TopToastMetrics {
     static let contentSpacing: CGFloat = 8
     static let iconSize: CGFloat = 22
     static let fontSize: CGFloat = 15
-    static let shadowOpacity = 0.11
-    static let shadowRadius: CGFloat = 12
+    static let shadowOpacity = 0.12
+    static let shadowRadius: CGFloat = 17
     static let shadowYOffset: CGFloat = 6
     static let initialRevealWidth: CGFloat = 48
     static let textRevealWidth: CGFloat = 96
@@ -485,6 +497,7 @@ private enum TopToastMetrics {
 enum TopToastTiming {
     static let defaultVisibleDuration: TimeInterval = 1.2
 
+    static let compactRevealDuration: TimeInterval = 0.05
     static let textRevealDuration: TimeInterval = 0.07
     static let iconRevealDuration: TimeInterval = 0.11
     static let settleDuration: TimeInterval = 0.12
