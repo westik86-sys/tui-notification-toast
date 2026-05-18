@@ -41,7 +41,7 @@ struct TopToastView: View {
     }
 
     private var toastContent: some View {
-        HStack(spacing: TopToastMetrics.contentSpacing) {
+        HStack(alignment: .center, spacing: TopToastMetrics.contentSpacing) {
             ZStack {
                 TopToastIconView(name: icon)
                     .opacity(phase.iconOpacity)
@@ -55,8 +55,7 @@ struct TopToastView: View {
         }
         .padding(.leading, TopToastMetrics.leadingPadding)
         .padding(.trailing, TopToastMetrics.trailingPadding)
-        .padding(.vertical, TopToastMetrics.verticalPadding)
-        .frame(minHeight: TopToastMetrics.height)
+        .frame(height: TopToastMetrics.height, alignment: .center)
         .fixedSize()
         .background {
             ZStack {
@@ -348,7 +347,7 @@ enum TopToastAnimationPhase {
         case .appearingOvershoot, .visible:
             return 1
         case .disappearingStart:
-            return 0.65
+            return 0.45
         case .disappearingText:
             return 0.25
         case .disappeared:
@@ -380,7 +379,7 @@ enum TopToastAnimationPhase {
     var blurRadius: CGFloat {
         switch self {
         case .appearingStart:
-            return 5
+            return 4
         case .appearingCompact:
             return 4
         case .appearingText:
@@ -436,13 +435,15 @@ enum TopToastAnimationPhase {
 
     var iconOpacity: Double {
         switch self {
-        case .appearingStart, .appearingCompact, .appearingText:
+        case .appearingStart, .appearingCompact:
             return 0
-        case .appearingOvershoot, .visible:
+        case .appearingText, .appearingOvershoot, .visible:
             return 1
         case .disappearingStart:
-            return 0.35
-        case .disappearingText, .disappeared:
+            return 0.65
+        case .disappearingText:
+            return 0.25
+        case .disappeared:
             return 0
         }
     }
@@ -470,19 +471,18 @@ enum TopToastAnimationPhase {
 }
 
 private enum TopToastMetrics {
-    static let height: CGFloat = 32
+    static let height: CGFloat = 48
     static let topSpacing: CGFloat = 10
     static let defaultIconName = "ToastCheckPositive"
     static let leadingPadding: CGFloat = 12
     static let trailingPadding: CGFloat = 16
-    static let verticalPadding: CGFloat = 9
     static let contentSpacing: CGFloat = 8
     static let iconSize: CGFloat = 22
     static let fontSize: CGFloat = 15
     static let shadowOpacity = 0.12
     static let shadowRadius: CGFloat = 17
     static let shadowYOffset: CGFloat = 6
-    static let initialRevealWidth: CGFloat = 48
+    static let initialRevealWidth: CGFloat = 36
     static let textRevealWidth: CGFloat = 96
     static let textCollapseWidth: CGFloat = 84
     static let sideFadeWidth: CGFloat = 24
@@ -495,7 +495,7 @@ private enum TopToastMetrics {
 }
 
 enum TopToastTiming {
-    static let defaultVisibleDuration: TimeInterval = 1.2
+    static let defaultVisibleDuration: TimeInterval = 3
 
     static let compactRevealDuration: TimeInterval = 0.05
     static let textRevealDuration: TimeInterval = 0.07
